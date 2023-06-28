@@ -12,7 +12,7 @@ import { filterImageFromURL, deleteLocalFiles } from "./util/util";
   // Use the body parser middleware for post requests
   app.use(bodyParser.json());
 
-  //Check url is valid
+  // Check url is valid
   const isUrl = (val: any) => {
     try {
       const url = new URL(val);
@@ -42,6 +42,11 @@ import { filterImageFromURL, deleteLocalFiles } from "./util/util";
   app.get(
     "/filteredimage",
     (req, res, next) => {
+      // 401 Unauthorized - Missing Authorization header
+      if (!req.headers.authorization) {
+        return res.status(401).json({ error: "Missing Authorization header" });
+      }
+      // delete img file on finish of the response
       res.on("finish", async () => {
         if (img) {
           await deleteLocalFiles([img]);
@@ -52,6 +57,7 @@ import { filterImageFromURL, deleteLocalFiles } from "./util/util";
     },
     async (req, res) => {
       const url = req.query.image_url;
+      // 400 Bad Request - URL is invalid
       if (!isUrl(url)) {
         return res.status(400).json({ error: "Invalid URL" });
       }
