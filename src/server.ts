@@ -1,4 +1,4 @@
-import express from "express";
+import express, { NextFunction } from "express";
 import bodyParser from "body-parser";
 import { filterImageFromURL, deleteLocalFiles } from "./util/util";
 
@@ -11,6 +11,16 @@ import { filterImageFromURL, deleteLocalFiles } from "./util/util";
 
   // Use the body parser middleware for post requests
   app.use(bodyParser.json());
+
+  //Check url is valid
+  const isUrl = (val: any) => {
+    try {
+      const url = new URL(val);
+      return url.protocol === "http:" || url.protocol === "https:";
+    } catch (ex) {
+      return false;
+    }
+  };
 
   // @TODO1 IMPLEMENT A RESTFUL ENDPOINT
   // GET /filteredimage?image_url={{URL}}
@@ -27,11 +37,28 @@ import { filterImageFromURL, deleteLocalFiles } from "./util/util";
   //   the filtered image file [!!TIP res.sendFile(filteredpath); might be useful]
 
   /**************************************************************************** */
-  app.get("/filteredimage", async (req, res) => {
-    const url = req.query.image_url;
-    const img = await filterImageFromURL(url);
-    res.download(img);
-  });
+  let img: string;
+
+  app.get(
+    "/filteredimage",
+    (req, res, next) => {
+      res.on("finish", async () => {
+        if (img) {
+          await deleteLocalFiles([img]);
+          img = null;
+        }
+      });
+      next();
+    },
+    async (req, res) => {
+      const url = req.query.image_url;
+      if (!isUrl(url)) {
+        return res.status(400).json({ error: "Invalid URL" });
+      }
+      img = await filterImageFromURL(url);
+      res.download(img);
+    }
+  );
 
   //! END @TODO1
 
