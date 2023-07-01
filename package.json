@@ -7,6 +7,8 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "clean": "rimraf www/ || true",
     "build": "npm run clean && tsc && cp package.json www/package.json && mkdir www/tmp/ && cd www && zip -r Archive.zip . && cd ..",
+    "windows-clean": "rimraf www\\ || true",
+    "windows-build": "npm run windows-clean && tsc && cp package.json www\\package.json && mkdir www\\tmp\\ && cd www && 7z a Archive.zip . && cd ..",
     "dev": "ts-node-dev --respawn --transpile-only ./src/server.ts"
   },
   "repository": {
@@ -23,9 +25,9 @@
     "@types/bluebird": "^3.5.33",
     "@types/express": "^4.17.0",
     "@types/node": "^11.13.17",
-    "ts-node-dev": "^1.0.0-pre.40",
+    "ts-node-dev": "^1.1.8",
     "tslint": "^5.18.0",
-    "typescript": "^3.5.3"
+    "typescript": "^5.1.6"
   },
   "dependencies": {
     "axios": "^1.4.0",
