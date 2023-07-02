@@ -61,8 +61,13 @@ import { filterImageFromURL, deleteLocalFiles } from "./util/util";
       if (!isUrl(url)) {
         return res.status(400).json({ error: "Invalid URL" });
       }
-      img = await filterImageFromURL(url);
-      res.download(img);
+
+      try {
+        img = await filterImageFromURL(url);
+        res.download(img);
+      } catch (ex) {
+        return res.status(422).json({ error: "422 Unprocessable Content" });
+      }
     }
   );
 
